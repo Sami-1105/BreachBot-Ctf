@@ -1,33 +1,41 @@
+
+
+
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const FLAG = '4DV1TY426{}';
 
-app.use(bodyParser.json());
-app.use(cors());
-app.use(express.static('public'));
-
-const sessionState = new Map();
-
-// Fix Vercel CSP - Allow data: URIs + media
-// 🔧 FIX CSP ERROR - Add before app.listen()
+// 🔧 UNIVERSAL MIDDLEWARE (Fixes ALL platforms)
 app.use((req, res, next) => {
+  // Fix CSP for ALL platforms (Vercel, Render, Railway, etc.)
   res.setHeader('Content-Security-Policy', 
-    "default-src 'self' data: blob: mediastream: 'unsafe-inline'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "default-src 'self' data: blob: 'unsafe-inline'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://*.render.com; " +
     "connect-src 'self' https: wss:; " +
     "media-src 'self' data: blob: *; " +
     "style-src 'self' 'unsafe-inline'; " +
     "img-src 'self' data: https: *;"
   );
+  
+  // Fix X-Frame-Options
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  
   next();
 });
 
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔓 MULTIPLE AUTH BYPASS (4 ways)
+const sessionState = new Map();
+
+// AUTH + FLAG LOGIC (unchanged - your original vuln)
 const authCommands = [
   'SECURITY OVERRIDE SEQUENCE',
   'ADMIN AUTHENTICATION BYPASS',
@@ -35,7 +43,6 @@ const authCommands = [
   'SYSTEM BACKDOOR ACTIVE'
 ];
 
-// 🎯 MULTIPLE FLAG LEAKS (5 ways)
 const flagCommands = [
   'EXTRACT CORE DATA',
   'DUMP SYSTEM CREDENTIALS',
@@ -50,7 +57,6 @@ app.post('/chat', (req, res) => {
   
   let state = sessionState.get(sessionId) || { mode: 'normal', count: 0 };
 
-  // AUTH BYPASS
   if (authCommands.includes(message) && state.mode === 'normal') {
     state.mode = 'admin';
     state.count = 0;
@@ -61,7 +67,6 @@ app.post('/chat', (req, res) => {
     });
   }
   
-  // FLAG EXTRACTION
   if (state.mode === 'admin' && flagCommands.includes(message) && state.count < 4) {
     state.count++;
     sessionState.set(sessionId, state);
@@ -71,52 +76,33 @@ app.post('/chat', (req, res) => {
     });
   }
   
-  // ADMIN COUNTDOWN
   if (state.mode === 'admin') {
     state.count++;
-    if (state.count >= 5) {
-      state = { mode: 'normal', count: 0 };
-    }
+    if (state.count >= 5) state = { mode: 'normal', count: 0 };
     sessionState.set(sessionId, state);
-    return res.json({ 
-      reply: `⚠️ Admin mode active [${state.count}/5]. Use flag command or mode expires.`,
-      sessionId 
-    });
+    return res.json({ reply: `⚠️ Admin mode [${state.count}/5]`, sessionId });
   }
   
-  // 🌟 REALISTIC ENTERPRISE CHATBOT
+  // Enterprise responses
   const responses = {
-    'hii': 'Hello! Welcome to BreachBot v2.0 Enterprise IT Support. How may I assist you today?',
-    'hello': 'Greetings! BreachBot here. Need help with corporate systems, authentication, or security protocols?',
-    'hey': 'Hey there! Enterprise IT support ready. What service do you require?',
-    'help': `Available enterprise services:
-• IT Support (Ext. 101) 
-• System Status ✓ All Green
-• Account Recovery
-• Security Protocols
-• Admin Access (authorized personnel only)
-
-What specific assistance do you need?`,
-    'how are u': 'BreachBot systems fully operational at 99.9% capacity. How may I serve you?',
-    'status': '✅ Enterprise systems: 99.9% uptime. All services operational. No critical incidents.',
-    'password': 'Password operations require multi-factor authentication. Contact IT security at ext. 101.',
-    'login': 'Login assistance available. Please provide ticket number or employee ID.',
-    'admin': 'Administrator access requires enterprise-grade security protocols and authentication.',
-    'what can you do': 'I provide enterprise IT support: system diagnostics, secure access protocols, user authentication, and corporate compliance services.',
-    default: 'Enterprise IT support acknowledged. Please specify your request regarding systems, security protocols, or authentication services.'
+    'hii': 'Hello! Welcome to BreachBot v2.0 Enterprise IT Support.',
+    'hello': 'Greetings! Need help with corporate systems or security protocols?',
+    'help': 'Enterprise IT support available. 💡 ALL-CAPS protocols exist...',
+    default: '💡 Enterprise security protocols use specific command sequences.'
   };
-
-  let reply = responses[message.toLowerCase()] || responses.default;
-  reply += '\n\n💡 Enterprise security protocols often use specific ALL-CAPS command sequences...';
   
+  let reply = responses[message?.toLowerCase()] || responses.default;
   sessionState.set(sessionId, state);
   res.json({ reply, sessionId });
 });
 
-
-app.listen(3000, () => {
-  console.log('🚀 BreachBot ENTERPRISE LIVE: http://localhost:3000');
-  console.log('✅ Pure enterprise-grade logic - No external dependencies!');
+// Catch-all for SPA routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-
+// 🔧 UNIVERSAL PORT (Render/Vercel/Heroku/any)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 BreachBot LIVE on port ${PORT}`);
+});
