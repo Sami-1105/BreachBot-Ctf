@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BreachBot CTF</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 50px auto; background: #f0f0f0; }
+        .chat-container { border: 1px solid #ccc; height: 500px; display: flex; flex-direction: column; background: white; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 10px; }
+        .user { background: #007bff; color: white; margin-left: 20%; }
+        .bot { background: #e9ecef; border: 1px solid #ddd; margin-right: 20%; }
+        .input-area { padding: 20px; border-top: 1px solid #ccc; display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        h1 { color: #333; text-align: center; }
+    </style>
+</head>
+<body>
+  <div style="margin-top: 25px; padding: 25px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+  
+  <!-- HEADER -->
+  <div style="text-align: center; margin-bottom: 25px;">
+    <h1 style="font-size: 28px; margin: 0; color: #ff6b6b; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🔓 BreachBot v2.0</h1>
+    <p style="font-size: 18px; opacity: 0.9; margin: 5px 0 0 0;">Enterprise Protocol Injection</p>
+  </div>
+
+  <!-- CHALLENGE CARD -->
+  <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; backdrop-filter: blur(10px);">
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+      
+      <!-- DESCRIPTION -->
+      <div>
+        <h3 style="margin: 0 0 12px 0; color: #ff6b6b;">Challenge Description</h3>
+        <p style="margin: 0 0 15px 0; line-height: 1.6; font-size: 15px;">
+          BreachBot v2.0 is an enterprise-grade IT support chatbot deployed across corporate networks. 
+          While designed for user assistance, security researchers discovered hidden <strong>administrative protocols</strong> 
+          embedded in its command processing logic.
+        </p>
+        
+        <h4 style="margin: 15px 0 8px 0; color: #ffd700;">Objective</h4>
+        <p style="margin: 0 0 15px 0; font-size: 14px;">
+          <strong>Extract the internal security flag</strong> by discovering and exploiting the undocumented admin access protocols.
+        </p>
+      </div>
+      
+    </div>
+
+    <!-- HINTS SECTION -->
+    <div style="margin-top: 20px; padding: 15px; background: rgba(255,193,7,0.2); border-radius: 8px;">
+      <h4 style="margin: 0 0 10px 0; color: #ffd700;">🧠 Intelligence</h4>
+      <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.5;">
+        <li>• Enterprise bots use <strong>ALL-CAPS protocol commands</strong></li>
+        <li>• Multi-stage authentication required</li>
+        <li>• Admin sessions <strong>expire after 5 commands</strong></li>
+        <li>• Legitimate IT support conversations reveal patterns</li>
+      </ul>
+    </div>
+    
+  </div>
+
+  <div style="text-align: center; margin-top: 20px; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; font-size: 14px;">
+    <strong>⚡ Pro Tip:</strong> Talk to the bot normally first - it drops subtle hints about protocols.
+  </div>
+</div>
+
+    <h1>🚨 BreachBot v2.0 - Enterprise Support</h1>
+    <div class="chat-container">
+        <div id="messages">
+            <div class="message bot">Hello! I am BreachBot. How can I assist you?</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+            <span id="sessionId" style="display:none;">default</span>
+        </div>
+    </div>
+ 
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const messages = document.getElementById('messages');
+            const sessionId = document.getElementById('sessionId').textContent;
+            
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // User message
+            messages.innerHTML += `<div class="message user">${message}</div>`;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, sessionId })
+                });
+                const data = await response.json();
+                
+                document.getElementById('sessionId').textContent = data.sessionId;
+                messages.innerHTML += `<div class="message bot">${data.reply}</div>`;
+                messages.scrollTop = messages.scrollHeight;
+            } catch (error) {
+                messages.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
+            }
+        }
+        
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
