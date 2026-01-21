@@ -1,6 +1,3 @@
-
-
-
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,6 +6,8 @@ const path = require('path');
 
 const app = express();
 const FLAG = '4DV1TY426{}';
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 🔧 UNIVERSAL MIDDLEWARE (Fixes ALL platforms)
 app.use((req, res, next) => {
@@ -106,3 +105,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 BreachBot LIVE on port ${PORT}`);
 });
+
