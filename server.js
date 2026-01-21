@@ -8,14 +8,17 @@ const app = express();
 const FLAG = '4DV1TY426{}';
 
 // 🔧 FIX 1: CSP - Allow ALL media + scripts
+// 🛡️ PERFECT CSP - Allows ALL CTF resources
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy', 
-    "default-src 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; " +
-    "media-src 'self' data: blob: *; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' *; " +
-    "connect-src 'self' *; " +
-    "style-src 'self' 'unsafe-inline'; " +
-    "img-src 'self' data: *;"
+    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: *; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' * data: blob:; " +
+    "style-src 'self' 'unsafe-inline' *; " +
+    "img-src * data: blob:; " +
+    "media-src * data: blob:; " +
+    "connect-src *; " +
+    "font-src * data:; " +
+    "object-src 'none';"
   );
   next();
 });
@@ -73,5 +76,6 @@ const PORT = process.env.PORT || 10000;  // Render default: 10000
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 BreachBot LIVE on port ${PORT}`);
 });
+
 
 
