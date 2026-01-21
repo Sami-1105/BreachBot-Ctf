@@ -81,38 +81,41 @@
     </div>
  
     <script>
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const messages = document.getElementById('messages');
-            const sessionId = document.getElementById('sessionId').textContent;
-            
-            const message = input.value.trim();
-            if (!message) return;
-            
-            // User message
-            messages.innerHTML += `<div class="message user">${message}</div>`;
-            input.value = '';
-            messages.scrollTop = messages.scrollHeight;
-            
-            try {
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, sessionId })
-                });
-                const data = await response.json();
-                
-                document.getElementById('sessionId').textContent = data.sessionId;
-                messages.innerHTML += `<div class="message bot">${data.reply}</div>`;
-                messages.scrollTop = messages.scrollHeight;
-            } catch (error) {
-                messages.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
-            }
-        }
-        
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
+       // Generate fresh session every page load
+  const sessionId = crypto.randomUUID();
+
+  document.getElementById('sessionId').textContent = sessionId;
+
+  async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const messages = document.getElementById('messages');
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    messages.innerHTML += `<div class="message user">${message}</div>`;
+    input.value = '';
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+      const response = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, sessionId })
+      });
+
+      const data = await response.json();
+      messages.innerHTML += `<div class="message bot">${data.reply}</div>`;
+      messages.scrollTop = messages.scrollHeight;
+    } catch (err) {
+      messages.innerHTML += `<div class="message bot">Error</div>`;
+    }
+  }
+
+  document.getElementById('messageInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
     </script>
 </body>
 </html>
+
