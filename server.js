@@ -71,6 +71,7 @@ app.post('/chat', (req, res) => {
 // 🔧 FIX 3: Render Port Binding (CRITICAL)
 const PORT = process.env.PORT || 10000;  // Render default: 10000
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 BreachBot LIVE on port ${PORT} (host: 0.0.0.0)`);
+  console.log(`🚀 BreachBot LIVE on port ${PORT}`);
 });
+
 
