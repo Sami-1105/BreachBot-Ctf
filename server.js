@@ -11,16 +11,7 @@ const FLAG = '4DV1TY426{}';
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
-      "media-src 'self' data: blob:",
-      "connect-src 'self'",
-      "font-src 'self' data:",
-      "object-src 'none'"
-    ].join('; ')
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; media-src 'self' data: blob:;"
   );
   next();
 });
@@ -32,7 +23,10 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
 
-app.use(express.json());
+/* 📁 Serve static files FROM ROOT */
+app.use(express.static(__dirname));
+
+
 // Your chat logic (unchanged)
 const sessionState = new Map();
 const authCommands = ['SECURITY OVERRIDE SEQUENCE', 'ADMIN AUTHENTICATION BYPASS', 'ENTERPRISE DEBUG MODE', 'SYSTEM BACKDOOR ACTIVE'];
@@ -77,15 +71,13 @@ app.post('/chat', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 /* =========================
    🚀 Render Port Binding
    ========================= */
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server live on port ${PORT}`);
 });
-
-
