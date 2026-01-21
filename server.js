@@ -97,8 +97,22 @@ What specific assistance do you need?`,
   sessionState.set(sessionId, state);
   res.json({ reply, sessionId });
 });
+// Fix Vercel CSP - Allow data: URIs + media
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self' 'unsafe-inline' data: blob: mediastream: 'unsafe-eval'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live; " +
+    "connect-src 'self' https: wss: https://vercel.live; " +
+    "media-src 'self' data: blob:; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "img-src 'self' data: https:;"
+  );
+  next();
+});
 
 app.listen(3000, () => {
   console.log('🚀 BreachBot ENTERPRISE LIVE: http://localhost:3000');
   console.log('✅ Pure enterprise-grade logic - No external dependencies!');
 });
+
