@@ -7,27 +7,32 @@ const path = require('path');
 const app = express();
 const FLAG = '4DV1TY426{}';
 
-// 🔧 FIX 1: CSP - Allow ALL media + scripts
 // 🛡️ PERFECT CSP - Allows ALL CTF resources
 app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', 
-    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: *; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' * data: blob:; " +
-    "style-src 'self' 'unsafe-inline' *; " +
-    "img-src * data: blob:; " +
-    "media-src * data: blob:; " +
-    "connect-src *; " +
-    "font-src * data:; " +
-    "object-src 'none';"
+  res.setHeader(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "media-src 'self' data: blob:",
+      "connect-src 'self'",
+      "font-src 'self' data:",
+      "object-src 'none'"
+    ].join('; ')
   );
   next();
 });
 
+
 // 🔧 FIX 2: Serve static files CORRECTLY
-app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(bodyParser.json());
 app.use(cors());
+app.use(express.json());
 
+app.use(express.json());
 // Your chat logic (unchanged)
 const sessionState = new Map();
 const authCommands = ['SECURITY OVERRIDE SEQUENCE', 'ADMIN AUTHENTICATION BYPASS', 'ENTERPRISE DEBUG MODE', 'SYSTEM BACKDOOR ACTIVE'];
@@ -71,11 +76,16 @@ app.post('/chat', (req, res) => {
   res.json({ reply, sessionId });
 });
 
-// 🔧 FIX 3: Render Port Binding (CRITICAL)
-const PORT = process.env.PORT || 10000;  // Render default: 10000
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 BreachBot LIVE on port ${PORT}`);
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+/* =========================
+   🚀 Render Port Binding
+   ========================= */
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server live on port ${PORT}`);
+});
 
 
